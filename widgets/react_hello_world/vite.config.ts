@@ -18,7 +18,7 @@ function extractFragment() {
       const html = readFileSync(distPath, "utf-8");
       const css = readFileSync(cssPath, "utf-8");
 
-      const scriptMatch = html.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+      const scriptMatch = html.match(/<script\b[^>]*>([\s\S]*?)<\/script(?:\s+[^>]*)?>/i);
       const scriptContent = scriptMatch ? scriptMatch[1] : "";
 
       const fragment = `<style>${css}</style>\n<hello-world-widget></hello-world-widget>\n<script>${scriptContent}</script>`;
