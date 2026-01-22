@@ -21,7 +21,9 @@
             "label": "Cards Per Row",
             "defaultValue": 3,
             "rules": {
-              "required": true
+              "required": true,
+              "minimum": 1,
+              "maximum": 6
             }
           },
           {
@@ -44,21 +46,59 @@
           },
           {
             "name": "title_size",
-            "type": "text",
-            "label": "Title Size (small, medium, large)",
-            "defaultValue": "medium"
+            "type": "select",
+            "label": "Title Size",
+            "defaultValue": "medium",
+            "options": [
+              {
+                "value": "small",
+                "label": "Small"
+              },
+              {
+                "value": "medium",
+                "label": "Medium"
+              },
+              {
+                "value": "large",
+                "label": "Large"
+              }
+            ]
           },
           {
             "name": "card_style",
-            "type": "text",
-            "label": "Card Style (flat, shadow, bordered)",
-            "defaultValue": "shadow"
+            "type": "select",
+            "label": "Card Style",
+            "defaultValue": "shadow",
+            "options": [
+              {
+                "value": "flat",
+                "label": "Flat"
+              },
+              {
+                "value": "shadow",
+                "label": "Shadow"
+              },
+              {
+                "value": "bordered",
+                "label": "Bordered"
+              }
+            ]
           },
           {
             "name": "show_icons",
-            "type": "text",
-            "label": "Show Icons (yes, no)",
-            "defaultValue": "yes"
+            "type": "select",
+            "label": "Show Icons",
+            "defaultValue": "yes",
+            "options": [
+              {
+                "value": "yes",
+                "label": "Yes"
+              },
+              {
+                "value": "no",
+                "label": "No"
+              }
+            ]
           }
         ]
       },

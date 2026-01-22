@@ -5,51 +5,69 @@
   "category": "Demo",
   "imageName": "banner",
   "configuration": {
-    "properties": {
-      "cards_per_row": {
+    "properties": [
+      {
         "name": "cards_per_row",
         "type": "number",
         "label": "Cards Per Row",
-        "defaultValue": 3
+        "defaultValue": 3,
+        "rules": {
+          "required": true,
+          "minimum": 1,
+          "maximum": 6
+        }
       },
-      "card_background": {
+      {
         "name": "card_background",
         "type": "color",
         "label": "Card Background",
         "defaultValue": "#ffffff"
       },
-      "card_text_color": {
+      {
         "name": "card_text_color",
         "type": "color",
         "label": "Text Color",
         "defaultValue": "#1f2937"
       },
-      "accent_color": {
+      {
         "name": "accent_color",
         "type": "color",
         "label": "Accent Color",
         "defaultValue": "#3b82f6"
       },
-      "title_size": {
+      {
         "name": "title_size",
-        "type": "text",
-        "label": "Title Size (small, medium, large)",
-        "defaultValue": "medium"
+        "type": "select",
+        "label": "Title Size",
+        "defaultValue": "medium",
+        "options": [
+          { "value": "small", "label": "Small" },
+          { "value": "medium", "label": "Medium" },
+          { "value": "large", "label": "Large" }
+        ]
       },
-      "card_style": {
+      {
         "name": "card_style",
-        "type": "text",
-        "label": "Card Style (flat, shadow, bordered)",
-        "defaultValue": "shadow"
+        "type": "select",
+        "label": "Card Style",
+        "defaultValue": "shadow",
+        "options": [
+          { "value": "flat", "label": "Flat" },
+          { "value": "shadow", "label": "Shadow" },
+          { "value": "bordered", "label": "Bordered" }
+        ]
       },
-      "show_icons": {
+      {
         "name": "show_icons",
-        "type": "text",
-        "label": "Show Icons (yes, no)",
-        "defaultValue": "yes"
+        "type": "select",
+        "label": "Show Icons",
+        "defaultValue": "yes",
+        "options": [
+          { "value": "yes", "label": "Yes" },
+          { "value": "no", "label": "No" }
+        ]
       }
-    },
-    "required": ["cards_per_row"]
+    ]
   },
   "defaultConfig": {
     "cards_per_row": 3,

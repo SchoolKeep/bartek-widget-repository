@@ -179,15 +179,19 @@ The `configuration` field defines the blueprint for customizable properties:
 ```json
 {
   "configuration": {
-    "properties": {
-      "propertyName": {
+    "properties": [
+      {
         "name": "propertyName",
-        "type": "text",
         "label": "Display Label",
-        "defaultValue": "default value"
+        "type": "text",
+        "description": "Optional description",
+        "defaultValue": "default value",
+        "rules": {
+          "required": true,
+          "minLength": 1
+        }
       }
-    },
-    "required": ["propertyName"]
+    ]
   },
   "defaultConfig": {
     "propertyName": "default value"
@@ -196,19 +200,23 @@ The `configuration` field defines the blueprint for customizable properties:
 ```
 
 **Configuration Fields:**
-- `properties` - A map of configurable properties, each defined as a ConfigField
-- `required` - An array of property names that must be provided for a valid widget instance
+- `properties` - An array of ConfigField definitions
 
 **ConfigField Required Properties:**
-- `name` - The property identifier (must match the key in properties map)
-- `type` - The field type (see supported types below)
+- `name` - The property identifier used in `content.html` template variables
 - `label` - Display label shown in the configuration UI
-- `defaultValue` - The default value for this property
+- `type` - The field type (see supported types below)
+
+**ConfigField Optional Properties:**
+- `description` - Helper text for the configuration UI
+- `defaultValue` - Default value shown in the configuration UI
+- `rules` - Validation rules such as `required`, `minLength`, `maxLength`, `minimum`, and `maximum`
+- `options` - Required for `select` fields, array of `{ "value", "label" }`
 
 **defaultConfig:**
 - Initial default values for widget configuration properties
 - Applied automatically when a new widget instance is added to a layout
-- Values must match what's defined in the configuration schema
+- Values must match the field names defined in `configuration.properties`
 
 ### Supported ConfigField Types
 
@@ -217,6 +225,9 @@ The `configuration` field defines the blueprint for customizable properties:
 | `text` | Single line text input |
 | `number` | Numeric input field |
 | `color` | Color picker |
+| `date` | Date picker |
+| `boolean` | Checkbox or toggle |
+| `select` | Select dropdown |
 
 ### Template Variables in content.html
 
@@ -250,33 +261,42 @@ The host application will replace these template variables with the actual confi
   "category": "Content",
   "imageName": "card_grid",
   "configuration": {
-    "properties": {
-      "cards_per_row": {
+    "properties": [
+      {
         "name": "cards_per_row",
-        "type": "number",
         "label": "Cards Per Row",
-        "defaultValue": 3
+        "type": "number",
+        "defaultValue": 3,
+        "rules": {
+          "required": true,
+          "minimum": 1,
+          "maximum": 6
+        }
       },
-      "card_background": {
+      {
         "name": "card_background",
-        "type": "color",
         "label": "Card Background",
+        "type": "color",
         "defaultValue": "#ffffff"
       },
-      "accent_color": {
+      {
         "name": "accent_color",
-        "type": "color",
         "label": "Accent Color",
+        "type": "color",
         "defaultValue": "#3b82f6"
       },
-      "card_style": {
+      {
         "name": "card_style",
-        "type": "text",
-        "label": "Card Style (flat, shadow, bordered)",
-        "defaultValue": "shadow"
+        "label": "Card Style",
+        "type": "select",
+        "defaultValue": "shadow",
+        "options": [
+          { "value": "flat", "label": "Flat" },
+          { "value": "shadow", "label": "Shadow" },
+          { "value": "bordered", "label": "Bordered" }
+        ]
       }
-    },
-    "required": ["cards_per_row"]
+    ]
   },
   "defaultConfig": {
     "cards_per_row": 3,
@@ -290,21 +310,18 @@ The host application will replace these template variables with the actual confi
 **content.html:**
 ```html
 <style>
-  /* Grid columns use the number config */
   .card-grid {
     display: grid;
     grid-template-columns: repeat({{ cards_per_row }}, 1fr);
     gap: 20px;
   }
 
-  /* Colors come from color configs */
   .card {
     background-color: {{ card_background }};
     padding: 24px;
     border-radius: 8px;
   }
 
-  /* Select config creates class variants */
   .card-style-shadow .card {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
@@ -313,7 +330,6 @@ The host application will replace these template variables with the actual confi
   }
 </style>
 
-<!-- Config values combined into class names -->
 <div class="card-grid card-style-{{ card_style }}">
   <div class="card">Card 1</div>
   <div class="card">Card 2</div>
