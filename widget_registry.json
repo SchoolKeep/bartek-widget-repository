@@ -21,9 +21,7 @@
             "label": "Cards Per Row",
             "defaultValue": 3,
             "rules": {
-              "required": true,
-              "minimum": 1,
-              "maximum": 6
+              "required": true
             }
           },
           {
@@ -46,35 +44,21 @@
           },
           {
             "name": "title_size",
-            "type": "select",
-            "label": "Title Size",
-            "defaultValue": "medium",
-            "options": [
-              { "value": "small", "label": "Small" },
-              { "value": "medium", "label": "Medium" },
-              { "value": "large", "label": "Large" }
-            ]
+            "type": "text",
+            "label": "Title Size (small, medium, large)",
+            "defaultValue": "medium"
           },
           {
             "name": "card_style",
-            "type": "select",
-            "label": "Card Style",
-            "defaultValue": "shadow",
-            "options": [
-              { "value": "flat", "label": "Flat" },
-              { "value": "shadow", "label": "Shadow" },
-              { "value": "bordered", "label": "Bordered" }
-            ]
+            "type": "text",
+            "label": "Card Style (flat, shadow, bordered)",
+            "defaultValue": "shadow"
           },
           {
             "name": "show_icons",
-            "type": "select",
-            "label": "Show Icons",
-            "defaultValue": "yes",
-            "options": [
-              { "value": "yes", "label": "Yes" },
-              { "value": "no", "label": "No" }
-            ]
+            "type": "text",
+            "label": "Show Icons (yes, no)",
+            "defaultValue": "yes"
           }
         ]
       },
@@ -133,31 +117,6 @@
       "imageName": "react_hello_world",
       "content": {
         "endpoint": "./widgets/react_hello_world/content.html",
-        "method": "GET",
-        "requiresAuthentication": false,
-        "cacheStrategy": "no-cache"
-      },
-      "containers": [
-        "Full width"
-      ],
-      "widgetsLibrary": true,
-      "settings": {
-        "configurable": true,
-        "editable": true,
-        "removable": true,
-        "shared": false,
-        "movable": false
-      }
-    },
-    {
-      "title": "Security Test Widget",
-      "description": "Widget designed to trigger YARA content scanning rules for testing purposes",
-      "version": "1.0.0",
-      "category": "Test",
-      "type": "security_test",
-      "imageName": "security_test",
-      "content": {
-        "endpoint": "./widgets/security_test/content.html",
         "method": "GET",
         "requiresAuthentication": false,
         "cacheStrategy": "no-cache"
