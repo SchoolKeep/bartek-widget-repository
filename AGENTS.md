@@ -198,15 +198,15 @@ If widget needs to call external APIs:
 
 **Option B: Private APIs (requires auth)**
 - Use Widget Service Connectors (server-side proxy)
-- Create secrets for API keys/tokens using MCP tools
-- Create connectors that reference secrets
+- Create secrets for API keys/tokens in the Community Control Panel
+- Create connectors that reference secrets in the Community Control Panel
+- Visit the connectors/secrets page in the Community Control Panel to learn how to create and use them
 - Widget calls connector endpoint: `/widget-service/connectors/{permalink}/execute`
-- See MCP instructions for connector/secret management
 
 **Example connector pattern:**
-1. Create secret: `secret_create` with API key
-2. Create connector: `connector_create` with URL, auth config using `{{ get_secret('secret_name') }}`
-3. Widget JavaScript calls connector endpoint
+1. Create a secret with the API key
+2. Create a connector with URL and auth config using `{{ get_secret('secret_name') }}`
+3. Widget JavaScript calls the connector endpoint
 
 ### 5. Build Tool Configuration
 
