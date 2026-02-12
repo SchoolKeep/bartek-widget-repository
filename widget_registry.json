@@ -132,6 +132,31 @@
         "shared": false,
         "movable": false
       }
+    },
+    {
+      "title": "Security Test Widget",
+      "description": "Widget designed to trigger YARA content scanning rules for testing purposes",
+      "version": "1.0.0",
+      "category": "Test",
+      "type": "security_test",
+      "imageName": "security_test",
+      "content": {
+        "endpoint": "./widgets/security_test/content.html",
+        "method": "GET",
+        "requiresAuthentication": false,
+        "cacheStrategy": "no-cache"
+      },
+      "containers": [
+        "Full width"
+      ],
+      "widgetsLibrary": true,
+      "settings": {
+        "configurable": true,
+        "editable": true,
+        "removable": true,
+        "shared": false,
+        "movable": false
+      }
     }
   ]
 }
