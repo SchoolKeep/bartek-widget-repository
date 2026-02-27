@@ -36,11 +36,10 @@ For complete documentation on creating widgets, configuration, and usage, see [w
 
 ## Files
 
-- `bin/build-registry.sh` - Registry build script
-- `config/defaults.json` - Global configuration and default widget settings
+- `bin/build-registry.sh` - Registry build script (defaults at top of file; no external config)
 - `widgets/WIDGET_SETUP.md` - Complete setup and usage documentation
 - `widget_registry.json` - Generated registry (auto-updated, do not edit manually)
-- `widgets/` - Individual widget directories
+- `widgets/` - Individual widget directories; each widget has `widget.json` and `dist/content.html` (the service pulls only the `dist/` directory per widget)
 
 ## Requirements
 

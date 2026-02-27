@@ -1,18 +1,7 @@
 {
   "widgets": [
     {
-      "title": "Card Grid",
-      "description": "A configurable card grid widget demonstrating dynamic layout and styling options",
-      "version": "1.0.0",
       "category": "Demo",
-      "type": "card_grid",
-      "imageName": "banner",
-      "content": {
-        "endpoint": "./widgets/card_grid/content.html",
-        "method": "GET",
-        "requiresAuthentication": false,
-        "cacheStrategy": "no-cache"
-      },
       "configuration": {
         "properties": [
           {
@@ -102,6 +91,9 @@
           }
         ]
       },
+      "containers": [
+        "Full width"
+      ],
       "defaultConfig": {
         "cards_per_row": 3,
         "card_background": "#ffffff",
@@ -111,91 +103,113 @@
         "card_style": "shadow",
         "show_icons": "yes"
       },
-      "containers": [
-        "Full width"
-      ],
-      "widgetsLibrary": true,
+      "description": "A configurable card grid widget demonstrating dynamic layout and styling options",
       "settings": {
         "configurable": true,
         "editable": true,
         "removable": true,
         "shared": false,
         "movable": false
-      }
+      },
+      "title": "Card Grid",
+      "version": "1.0.0",
+      "widgetsLibrary": true,
+      "type": "card_grid",
+      "source": {
+        "path": "widgets/card_grid/dist",
+        "entry": "content.html"
+      },
+      "imageSrc": "widgets/card_grid/thumbnail.png"
     },
     {
-      "title": "Demo widget",
+      "category": "Demo",
+      "containers": [
+        "Full width"
+      ],
       "description": "Demo widget for presentation purposes",
+      "settings": {
+        "configurable": true,
+        "editable": true,
+        "removable": true,
+        "shared": false,
+        "movable": false
+      },
+      "title": "Demo widget",
       "version": "1.0.0",
-      "category": "Demo",
+      "widgetsLibrary": true,
       "type": "demo_widget",
-      "imageName": "demo_widget",
-      "content": {
-        "endpoint": "./widgets/demo_widget/content.html",
-        "method": "GET",
-        "requiresAuthentication": false,
-        "cacheStrategy": "no-cache"
+      "source": {
+        "path": "widgets/demo_widget/dist",
+        "entry": "content.html"
       },
-      "containers": [
-        "Full width"
-      ],
-      "widgetsLibrary": true,
-      "settings": {
-        "configurable": true,
-        "editable": true,
-        "removable": true,
-        "shared": false,
-        "movable": false
-      }
+      "imageSrc": "widgets/demo_widget/thumbnail.png"
     },
     {
-      "title": "Hello World Widget",
-      "description": "A simple React widget displaying Hello World with custom styling",
-      "version": "1.0.0",
       "category": "Demo",
-      "type": "react_hello_world",
-      "imageName": "react_hello_world",
-      "content": {
-        "endpoint": "./widgets/react_hello_world/content.html",
-        "method": "GET",
-        "requiresAuthentication": false,
-        "cacheStrategy": "no-cache"
+      "configuration": {
+        "properties": [
+          {
+            "name": "title",
+            "type": "text",
+            "label": "Title",
+            "defaultValue": "React Widget",
+            "rules": {
+              "required": true
+            }
+          },
+          {
+            "name": "description",
+            "type": "text",
+            "label": "Description",
+            "defaultValue": "A widget built with React and the Widget SDK."
+          }
+        ]
       },
       "containers": [
         "Full width"
       ],
-      "widgetsLibrary": true,
+      "defaultConfig": {
+        "title": "React Widget",
+        "description": "A widget built with React and the Widget SDK."
+      },
+      "description": "A React widget using the ESM module pattern with Widget SDK",
       "settings": {
         "configurable": true,
         "editable": true,
         "removable": true,
         "shared": false,
         "movable": false
-      }
+      },
+      "title": "React Widget",
+      "version": "1.0.0",
+      "widgetsLibrary": true,
+      "type": "react_widget",
+      "source": {
+        "path": "widgets/react_widget/dist",
+        "entry": "index.html"
+      },
+      "imageSrc": "widgets/react_widget/thumbnail.png"
     },
     {
-      "title": "Security Test Widget",
-      "description": "Widget designed to trigger YARA content scanning rules for testing purposes",
-      "version": "1.0.0",
       "category": "Test",
-      "type": "security_test",
-      "imageName": null,
-      "content": {
-        "endpoint": "./widgets/security_test/content.html",
-        "method": "GET",
-        "requiresAuthentication": false,
-        "cacheStrategy": "no-cache"
-      },
       "containers": [
         "Full width"
       ],
-      "widgetsLibrary": true,
+      "description": "Widget designed to trigger YARA content scanning rules for testing purposes",
       "settings": {
         "configurable": true,
         "editable": true,
         "removable": true,
         "shared": false,
         "movable": false
+      },
+      "title": "Security Test Widget",
+      "version": "1.0.0",
+      "widgetsLibrary": true,
+      "type": "security_test",
+      "source": {
+        "path": "widgets/security_test",
+        "entry": "content.html"
       }
     }
   ],

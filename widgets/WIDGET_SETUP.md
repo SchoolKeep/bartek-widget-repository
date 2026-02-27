@@ -6,7 +6,7 @@ This guide explains how to create and manage widgets in the widgets repository.
 
 This repository provides a system for managing widget configurations. Each widget is defined by:
 - A `widget.json` configuration file with metadata (title, description, version, etc.)
-- A `content.html` file containing the widget's complete content (HTML, CSS, and JavaScript)
+- A `dist/content.html` entry file containing the widget's complete content (HTML, CSS, and JavaScript). The **service pulls only the directory at `source.path`** (e.g. `dist/`), so only that directory is shipped—source code can stay outside it.
 - Optional additional files (for React widgets, build configurations, etc.)
 
 **Important**: The `content.html` file must be completely self-contained. All HTML, CSS, and JavaScript must be included directly in this file. **Relative file references** (such as `<link rel="stylesheet" href="styles.css">` or `<script src="script.js">`) will not work, as the widget system only serves the `content.html` file itself. However, **publicly available endpoints** (absolute URLs like `https://cdn.example.com/style.css` or `https://fonts.googleapis.com/css2?family=...`) are accessible and can be used.
@@ -29,18 +29,18 @@ The widget registry system uses individual configuration files for each widget, 
 ```
 widgets-repo-template/
 ├── bin/
-│   └── build-registry.sh    # Script to build widget_registry.json
-├── config/
-│   └── defaults.json        # Configuration and default values
+│   └── build-registry.sh    # Script to build widget_registry.json (defaults at top of file)
 ├── widget_registry.json     # Generated registry (DO NOT EDIT MANUALLY)
 └── widgets/
     ├── WIDGET_SETUP.md      # This documentation file
     ├── my_widget/
     │   ├── widget.json      # Widget-specific configuration
-    │   └── content.html     # Widget HTML content
+    │   └── dist/
+    │       └── content.html # Widget HTML entry (service pulls only dist/)
     └── another_widget/
         ├── widget.json
-        └── content.html
+        └── dist/
+            └── content.html
 ```
 
 ## Prerequisites
@@ -106,67 +106,45 @@ If you're using a build tool (like Vite, Webpack, etc.), ensure your build proce
 
 ## Configuration File
 
-### defaults.json
+### Defaults (in build script)
 
-This file contains both global configuration and default values for all widgets:
-
-```json
-{
-  "visibility": "private",
-  "contentFile": "content.html",
-  "contentMethod": "GET",
-  "requiresAuthentication": false,
-  "cacheStrategy": "no-cache",
-  "containers": ["Full width"],
-  "widgetsLibrary": true,
-  "settings": {
-    "configurable": true,
-    "editable": true,
-    "removable": true,
-    "shared": false,
-    "movable": false
-  }
-}
-```
-
-**Global Configuration Fields:**
-- `visibility` - Endpoint generation mode (must be `"private"`)
-  - Generates relative paths (e.g., `./widgets/demo_widget/content.html`)
-- `contentFile` - Name of the HTML content file (default: "content.html")
-- `contentMethod` - HTTP method for fetching content (default: "GET")
-- `requiresAuthentication` - Whether content requires auth (default: false)
-- `cacheStrategy` - Cache strategy for content (default: "no-cache")
-
-**Widget Default Fields:**
-- `containers` - Available container types
-- `widgetsLibrary` - Whether widget appears in library
-- `settings` - Default widget behavior settings
+All defaults live at the top of `bin/build-registry.sh`: a **widget template** (containers, widgetsLibrary, settings) and **content-block defaults** (method, requiresAuthentication, cacheStrategy) for widgets that use a `content` block. The build script deep-merges each widget's `widget.json` over this template, so you can override any default at any depth (e.g. only `settings.movable`). There is no external defaults file.
 
 ### widget.json
 
-Widget-specific configuration (only unique fields needed):
+Widget-specific configuration. Each `widget.json` must include either a **`source`** block (for repo-hosted content) or a **`content`** block (for external URLs). Paths in `source` and `imageSrc` are relative to the widget's directory; the build script resolves them to repository-root-relative paths in `widget_registry.json`. Use **only one** of `imageSrc` or `imageName` per widget; if both are set, the build fails.
 
+**Required fields:**
+- `version` - Semantic version (e.g., "1.0.0")
+- `title` - Display name of the widget
+- `description` - Brief description of the widget
+- `source` or `content` - Exactly one is required (see below)
+
+**Source block (repo-hosted):**
 ```json
 {
   "version": "1.0.0",
   "title": "My Widget",
   "description": "Description of what this widget does",
   "category": "Demo",
-  "imageName": "my_widget"
+  "imageName": "my_widget",
+  "source": {
+    "path": "dist",
+    "entry": "content.html"
+  }
 }
 ```
+- `source.path` - Directory containing the entry file, relative to this widget's directory. Use `"dist"` so the service pulls only that directory (recommended); the entry file then lives at `dist/content.html`.
+- `source.entry` - **Required.** HTML entry file name, relative to `path` (e.g. `"content.html"`).
 
-**Required fields:**
-- `version` - Semantic version (e.g., "1.0.0")
-- `title` - Display name of the widget
-- `description` - Brief description of the widget
+**Content block (external):** Use `"content": { "endpoint": "https://...", "method": "GET", ... }` for widgets served from an external URL. The build script merges defaults for `method`, `requiresAuthentication`, and `cacheStrategy` when not set.
 
 **Optional fields:**
-- `category` - Widget category (default from config/defaults.json)
-- `imageName` - Image identifier (defaults to directory name)
+- `category` - Widget category
+- `imageName` or `imageSrc` - **Only one allowed.** `imageName` is a built-in thumbnail identifier (e.g. `banner`). `imageSrc` is a custom thumbnail: either an absolute URL or a path relative to the widget directory (e.g. `preview.png` or `./images/preview.png`). Relative paths are resolved to repo-root-relative in the registry; the build script validates that the file exists and is 512 KB or smaller.
 - `configuration` - Schema for user-configurable properties (see [Dynamic Widget Configuration](#dynamic-widget-configuration))
 - `defaultConfig` - Default values for configurable properties
-- Any other field from config/defaults.json can be overridden
+- Any other widget template field (containers, widgetsLibrary, settings, etc.) can be overridden; widget.json is deep-merged over the script defaults
 
 ## Dynamic Widget Configuration
 
@@ -344,7 +322,7 @@ The host application will replace these template variables with the actual confi
    mkdir widgets/my_new_widget
    ```
 
-2. **Create `widget.json`** with your widget configuration:
+2. **Create `widget.json`** with your widget configuration (use `"path": "dist"` so the service pulls only the dist directory):
    ```bash
    cat > widgets/my_new_widget/widget.json << 'EOF'
    {
@@ -352,14 +330,16 @@ The host application will replace these template variables with the actual confi
      "title": "My New Widget",
      "description": "A widget that does amazing things",
      "category": "Demo",
-     "imageName": "my_new_widget"
+     "imageName": "my_new_widget",
+     "source": { "path": "dist", "entry": "content.html" }
    }
    EOF
    ```
 
-3. **Create `content.html`** with your widget HTML fragment (including all CSS and JavaScript):
+3. **Create `dist/content.html`** with your widget HTML fragment (including all CSS and JavaScript):
    ```bash
-   cat > widgets/my_new_widget/content.html << 'EOF'
+   mkdir -p widgets/my_new_widget/dist
+   cat > widgets/my_new_widget/dist/content.html << 'EOF'
    <style>
      .my-widget {
        padding: 20px;
@@ -397,7 +377,7 @@ The host application will replace these template variables with the actual confi
 
 1. **Edit the widget files**:
    - Modify `widgets/my_widget/widget.json` (don't forget to bump version!)
-   - Or modify `widgets/my_widget/content.html`
+   - Or modify `widgets/my_widget/dist/content.html`
 
 2. **Rebuild the registry**:
    ```bash
@@ -442,30 +422,29 @@ Display usage information.
 
 ## How It Works
 
-1. **Reads** global configuration from `config/defaults.json`
+1. **Uses** built-in defaults at the top of `bin/build-registry.sh` (widget template and content-block defaults)
 2. **Scans** the `widgets/` directory for subdirectories
 3. **Reads** each widget's `widget.json` configuration
-4. **Merges** widget-specific defaults and config:
-   - Widget-specific default values from `config/defaults.json` (excludes global config fields)
-   - Widget-specific values from `widget.json`
-   - Auto-generated values (type, endpoint URL)
-5. **Validates** required fields are present
+4. **Deep-merges** each widget over the default template, then sets `type`, resolved `source` or `content`, and (when set) resolved `imageSrc`; the registry output has at most one of `imageSrc` or `imageName`
+5. **Validates** required fields (including `source.entry` when a widget has a `source` block), mutual exclusivity of `imageSrc` and `imageName`, and for relative `imageSrc` that the thumbnail file exists and is ≤512 KB
 6. **Generates** the final `widget_registry.json`
 
-### Auto-Generated Fields
+### Auto-Generated and Resolved Fields
 
 - `type`: Derived from the directory name (e.g., `my_widget`)
-- `content.endpoint`: Generated as a relative path
-  - Format: `./widgets/{type}/content.html`
-  - Uses relative paths for local widget content
+- `source.path` and `source.entry`: Resolved from widget.json (widget-dir-relative) to repository-root-relative. For example, `"path": "dist"` and `"entry": "content.html"` in `widgets/demo_widget/widget.json` become `"path": "widgets/demo_widget/dist"`, `"entry": "content.html"` in the registry.
+- `imageSrc`: If set in widget.json, either kept as-is (absolute URL) or resolved to a repo-root-relative path (relative to widget dir). The registry never has both `imageSrc` and `imageName`; when `imageSrc` is set, `imageName` is omitted.
 
 ## Validation Rules
 
 The build script validates:
 
-- Required files exist (`widget.json`, `content.html`)
+- Required files exist (`widget.json`, and for `source` widgets the entry file at `source.path`/`source.entry`, e.g. `dist/content.html`)
 - JSON is valid
-- Required fields are present (`version`, `title`, `description`)
+- Required fields are present (`version`, `title`, `description`, and either `source` or `content`)
+- At most one of `imageSrc` or `imageName` is set in widget.json (build fails if both are set)
+- Paths in `source.path` and `imageSrc` do not contain `..` or start with `/`
+- For relative `imageSrc`, the thumbnail file exists and is 512 KB or smaller
 - Generated registry is valid JSON
 
 ## Troubleshooting
@@ -487,9 +466,9 @@ Ensure your `widget.json` includes all required fields:
 
 ### Widget not showing up in registry
 
-1. Check directory structure is correct
+1. Check directory structure is correct (e.g. `dist/content.html` under the widget directory)
 2. Verify `widget.json` exists and is valid JSON
-3. Verify `content.html` exists
+3. Verify the entry file exists at `source.path`/`source.entry` (e.g. `dist/content.html`)
 4. Run with `--dry-run` to see detailed error messages
 
 ## Best Practices
@@ -500,7 +479,7 @@ Ensure your `widget.json` includes all required fields:
 4. **Don't edit `widget_registry.json` manually** - it will be overwritten
 5. **Keep widget names simple** - they become the `type` field (use lowercase, underscores)
 6. **Test locally** with `--dry-run` before pushing
-7. **Keep content.html self-contained** - Include all CSS and JavaScript inline, or use publicly available CDN resources; avoid relative file references
+7. **Keep the entry file (e.g. dist/content.html) self-contained** - Include all CSS and JavaScript inline, or use publicly available CDN resources; avoid relative file references
 8. **Use HTML fragments only** - Do not include `<html>`, `<head>`, or `<body>` tags, as widgets are embedded into existing pages
 9. **Use absolute URLs for external resources** - Relative file references won't work, but publicly available endpoints (CDNs, fonts, etc.) are accessible
 
@@ -509,17 +488,17 @@ Ensure your `widget.json` includes all required fields:
 See the existing widgets in the `widgets/` directory for examples:
 
 - `widgets/demo_widget/` - A simple widget example with basic HTML content
-  - Demonstrates the minimal required structure: `widget.json` and `content.html`
+  - Demonstrates the minimal required structure: `widget.json` and `dist/content.html` with `source.path` set to `"dist"`
   - Good starting point for understanding the basic widget format
 
 - `widgets/react_hello_world/` - A React-based widget example using Vite
   - Shows how to integrate a modern JavaScript framework
-  - Includes build configuration (`vite.config.ts`, `package.json`)
+  - Build outputs to `dist/content.html`; includes build configuration (`vite.config.ts`, `package.json`)
   - Demonstrates how to bundle React components into a widget
 
 - `widgets/card_grid/` - A configurable card grid widget with dynamic layout and styling
   - Demonstrates the `configuration` and `defaultConfig` fields
-  - Shows how to use template variables (`{{ variable_name }}`) in content.html
+  - Shows how to use template variables (`{{ variable_name }}`) in the entry file (dist/content.html)
   - Includes multiple configuration types: number, color, and select
   - Well-commented HTML showing exactly how each config variable is used
 

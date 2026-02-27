@@ -3,7 +3,7 @@
   "title": "Card Grid",
   "description": "A configurable card grid widget demonstrating dynamic layout and styling options",
   "category": "Demo",
-  "imageName": "banner",
+  "imageSrc": "thumbnail.png",
   "configuration": {
     "properties": [
       {
@@ -41,9 +41,18 @@
         "label": "Title Size",
         "defaultValue": "medium",
         "options": [
-          { "value": "small", "label": "Small" },
-          { "value": "medium", "label": "Medium" },
-          { "value": "large", "label": "Large" }
+          {
+            "value": "small",
+            "label": "Small"
+          },
+          {
+            "value": "medium",
+            "label": "Medium"
+          },
+          {
+            "value": "large",
+            "label": "Large"
+          }
         ]
       },
       {
@@ -52,9 +61,18 @@
         "label": "Card Style",
         "defaultValue": "shadow",
         "options": [
-          { "value": "flat", "label": "Flat" },
-          { "value": "shadow", "label": "Shadow" },
-          { "value": "bordered", "label": "Bordered" }
+          {
+            "value": "flat",
+            "label": "Flat"
+          },
+          {
+            "value": "shadow",
+            "label": "Shadow"
+          },
+          {
+            "value": "bordered",
+            "label": "Bordered"
+          }
         ]
       },
       {
@@ -63,8 +81,14 @@
         "label": "Show Icons",
         "defaultValue": "yes",
         "options": [
-          { "value": "yes", "label": "Yes" },
-          { "value": "no", "label": "No" }
+          {
+            "value": "yes",
+            "label": "Yes"
+          },
+          {
+            "value": "no",
+            "label": "No"
+          }
         ]
       }
     ]
@@ -77,5 +101,9 @@
     "title_size": "medium",
     "card_style": "shadow",
     "show_icons": "yes"
+  },
+  "source": {
+    "path": "dist",
+    "entry": "content.html"
   }
 }
