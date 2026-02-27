@@ -196,6 +196,7 @@
         "Full width"
       ],
       "description": "Widget designed to trigger YARA content scanning rules for testing purposes",
+      "imageName": "security_test",
       "settings": {
         "configurable": true,
         "editable": true,
