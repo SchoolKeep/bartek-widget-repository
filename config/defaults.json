@@ -1,19 +1,26 @@
 {
-  "visibility": "private",
-  "contentFile": "content.html",
-  "contentMethod": "GET",
-  "requiresAuthentication": false,
-  "cacheStrategy": "no-cache",
-  "containers": [
-    "Full width"
-  ],
-  "widgetsLibrary": true,
-  "settings": {
-    "configurable": true,
-    "editable": true,
-    "removable": true,
-    "shared": false,
-    "movable": false
+  "widget_defaults": {
+    "visibility": "private",
+    "contentFile": "content.html",
+    "contentMethod": "GET",
+    "requiresAuthentication": false,
+    "cacheStrategy": "no-cache",
+    "containers": [
+      "Full width"
+    ],
+    "widgetsLibrary": true,
+    "settings": {
+      "configurable": true,
+      "editable": true,
+      "removable": true,
+      "shared": false,
+      "movable": false
+    }
+  },
+  "stylesheet_defaults": {
+    "contentFile": "style.css",
+    "rules": [
+      { "field": "pageType", "operator": "in", "value": ["global"] }
+    ]
   }
 }
-

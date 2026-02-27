@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # build-registry.sh
-# Script to generate widget_registry.json from individual widget configs
+# Script to generate widget_registry.json from individual widget and stylesheet configs
 
 set -e
 
@@ -13,6 +13,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 WIDGETS_DIR="widgets"
+STYLESHEETS_DIR="stylesheets"
 DEFAULTS_FILE="config/defaults.json"
 OUTPUT_FILE="widget_registry.json"
 
@@ -76,13 +77,14 @@ if [ "$VALIDATE_ONLY" = true ]; then
     error "File $OUTPUT_FILE does not exist"
     exit 1
   fi
-  
+
   if jq empty "$OUTPUT_FILE" 2>/dev/null; then
     success "Valid JSON in $OUTPUT_FILE"
-    
+
     # Check structure
     widget_count=$(jq '.widgets | length' "$OUTPUT_FILE")
-    success "Found $widget_count widgets in registry"
+    stylesheet_count=$(jq '.stylesheets // [] | length' "$OUTPUT_FILE")
+    success "Found $widget_count widgets and $stylesheet_count stylesheets in registry"
     exit 0
   else
     error "Invalid JSON in $OUTPUT_FILE"
@@ -101,18 +103,18 @@ if [ ! -d "$WIDGETS_DIR" ]; then
   exit 1
 fi
 
-# Read global configuration from defaults
-CONTENT_FILE=$(jq -r '.contentFile' "$DEFAULTS_FILE")
-CONTENT_METHOD=$(jq -r '.contentMethod' "$DEFAULTS_FILE")
-REQUIRES_AUTH=$(jq -r '.requiresAuthentication' "$DEFAULTS_FILE")
-CACHE_STRATEGY=$(jq -r '.cacheStrategy' "$DEFAULTS_FILE")
+# Read widget defaults
+CONTENT_FILE=$(jq -r '.widget_defaults.contentFile' "$DEFAULTS_FILE")
+CONTENT_METHOD=$(jq -r '.widget_defaults.contentMethod' "$DEFAULTS_FILE")
+REQUIRES_AUTH=$(jq -r '.widget_defaults.requiresAuthentication' "$DEFAULTS_FILE")
+CACHE_STRATEGY=$(jq -r '.widget_defaults.cacheStrategy' "$DEFAULTS_FILE")
 
 success "Loaded configuration from $DEFAULTS_FILE"
 
-# Initialize widgets array
+# ========================================
+# Process widgets
+# ========================================
 WIDGETS_JSON="[]"
-
-# Process each widget directory
 widget_count=0
 error_count=0
 
@@ -120,50 +122,50 @@ for widget_dir in "$WIDGETS_DIR"/*; do
   if [ ! -d "$widget_dir" ]; then
     continue
   fi
-  
+
   widget_name=$(basename "$widget_dir")
   widget_config="$widget_dir/widget.json"
-  
+
   echo ""
   echo "Processing widget: $widget_name"
-  
+
   # Check if widget.json exists
   if [ ! -f "$widget_config" ]; then
     error "  Missing widget.json in $widget_dir"
     ((error_count++))
     continue
   fi
-  
+
   # Validate widget.json is valid JSON
   if ! jq empty "$widget_config" 2>/dev/null; then
     error "  Invalid JSON in $widget_config"
     ((error_count++))
     continue
   fi
-  
+
   # Check required fields
   version=$(jq -r '.version // empty' "$widget_config")
   title=$(jq -r '.title // empty' "$widget_config")
   description=$(jq -r '.description // empty' "$widget_config")
-  
+
   if [ -z "$version" ]; then
     error "  Missing required field: version"
     ((error_count++))
     continue
   fi
-  
+
   if [ -z "$title" ]; then
     error "  Missing required field: title"
     ((error_count++))
     continue
   fi
-  
+
   if [ -z "$description" ]; then
     error "  Missing required field: description"
     ((error_count++))
     continue
   fi
-  
+
   # Check for widget-specific contentFile override
   widget_content_file=$(jq -r '.contentFile // empty' "$widget_config")
   if [ -n "$widget_content_file" ]; then
@@ -183,9 +185,8 @@ for widget_dir in "$WIDGETS_DIR"/*; do
 
   # Generate content endpoint URL with the correct content file
   endpoint="./${WIDGETS_DIR}/${widget_name}/${content_file_name}"
-  
-  # Build the widget object by merging defaults + widget.json + auto-generated fields
-  # Filter out global config fields from defaults (keep only widget-specific defaults)
+
+  # Build the widget object by merging widget_defaults + widget.json + auto-generated fields
   widget=$(jq -n \
     --slurpfile defaults "$DEFAULTS_FILE" \
     --slurpfile widget "$widget_config" \
@@ -195,8 +196,8 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     --argjson requiresAuth "$REQUIRES_AUTH" \
     --arg cacheStrategy "$CACHE_STRATEGY" \
     '
-    # Merge all sources
-    ($defaults[0] | del(.visibility, .contentFile, .contentMethod, .requiresAuthentication, .cacheStrategy)) * $widget[0] * {
+    # Merge all sources (use widget_defaults, not root)
+    ($defaults[0].widget_defaults | del(.visibility, .contentFile, .contentMethod, .requiresAuthentication, .cacheStrategy)) * $widget[0] * {
       "type": $type,
       "content": {
         "endpoint": $endpoint,
@@ -223,10 +224,10 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     # Remove null values from optional fields that were not provided
     del(.configuration | nulls) | del(.defaultConfig | nulls)
     ')
-  
+
   # Add to widgets array
   WIDGETS_JSON=$(echo "$WIDGETS_JSON" | jq --argjson widget "$widget" '. + [$widget]')
-  
+
   success "  Processed: $title (v$version)"
   ((widget_count++))
 done
@@ -246,8 +247,97 @@ fi
 
 success "Successfully processed $widget_count widget(s)"
 
-# Create final registry JSON
-REGISTRY_JSON=$(jq -n --argjson widgets "$WIDGETS_JSON" '{widgets: $widgets}')
+# ========================================
+# Process stylesheets
+# ========================================
+STYLESHEETS_JSON="[]"
+stylesheet_count=0
+
+if [ -d "$STYLESHEETS_DIR" ]; then
+  STYLESHEET_CONTENT_FILE=$(jq -r '.stylesheet_defaults.contentFile // "style.css"' "$DEFAULTS_FILE")
+
+  for stylesheet_dir in "$STYLESHEETS_DIR"/*; do
+    if [ ! -d "$stylesheet_dir" ]; then
+      continue
+    fi
+
+    stylesheet_name=$(basename "$stylesheet_dir")
+    stylesheet_config="$stylesheet_dir/stylesheet.json"
+
+    echo ""
+    echo "Processing stylesheet: $stylesheet_name"
+
+    if [ ! -f "$stylesheet_config" ]; then
+      error "  Missing stylesheet.json in $stylesheet_dir"
+      ((error_count++))
+      continue
+    fi
+
+    if ! jq empty "$stylesheet_config" 2>/dev/null; then
+      error "  Invalid JSON in $stylesheet_config"
+      ((error_count++))
+      continue
+    fi
+
+    # Check required fields
+    ss_name=$(jq -r '.name // empty' "$stylesheet_config")
+    if [ -z "$ss_name" ]; then
+      error "  Missing required field: name"
+      ((error_count++))
+      continue
+    fi
+
+    # Check for stylesheet-specific contentFile override
+    ss_content_file=$(jq -r '.contentFile // empty' "$stylesheet_config")
+    if [ -n "$ss_content_file" ]; then
+      ss_file_name="$ss_content_file"
+    else
+      ss_file_name="$STYLESHEET_CONTENT_FILE"
+    fi
+
+    if [ ! -f "$stylesheet_dir/$ss_file_name" ]; then
+      error "  Missing $ss_file_name in $stylesheet_dir"
+      ((error_count++))
+      continue
+    fi
+
+    ss_path="./${STYLESHEETS_DIR}/${stylesheet_name}/${ss_file_name}"
+
+    # Merge stylesheet_defaults + stylesheet.json, set path, remove contentFile
+    stylesheet=$(jq -n \
+      --slurpfile defaults "$DEFAULTS_FILE" \
+      --slurpfile ss "$stylesheet_config" \
+      --arg path "$ss_path" \
+      '($defaults[0].stylesheet_defaults // {}) * $ss[0] * {"path": $path} | del(.contentFile)')
+
+    STYLESHEETS_JSON=$(echo "$STYLESHEETS_JSON" | jq --argjson ss "$stylesheet" '. + [$ss]')
+
+    success "  Processed: $ss_name"
+    ((stylesheet_count++))
+  done
+
+  if [ $stylesheet_count -gt 0 ]; then
+    echo ""
+    success "Successfully processed $stylesheet_count stylesheet(s)"
+  fi
+fi
+
+if [ $error_count -gt 0 ]; then
+  error "Failed to process some stylesheet(s)"
+  exit 1
+fi
+
+# ========================================
+# Assemble final registry
+# ========================================
+if [ $stylesheet_count -gt 0 ]; then
+  REGISTRY_JSON=$(jq -n \
+    --argjson widgets "$WIDGETS_JSON" \
+    --argjson stylesheets "$STYLESHEETS_JSON" \
+    '{widgets: $widgets, stylesheets: $stylesheets}')
+else
+  REGISTRY_JSON=$(jq -n --argjson widgets "$WIDGETS_JSON" '{widgets: $widgets}')
+fi
 
 # Output result
 if [ "$DRY_RUN" = true ]; then
@@ -262,4 +352,3 @@ fi
 
 echo ""
 success "Build complete!"
-
