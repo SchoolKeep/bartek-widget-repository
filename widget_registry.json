@@ -114,7 +114,7 @@
       "title": "Card Grid",
       "version": "1.0.0",
       "widgetsLibrary": true,
-      "type": "card_grid",
+      "type": "card_grid_demo_bartek",
       "source": {
         "path": "widgets/card_grid/dist",
         "entry": "content.html"
