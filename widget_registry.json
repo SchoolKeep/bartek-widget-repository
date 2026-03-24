@@ -7,7 +7,7 @@
           {
             "name": "cards_per_row",
             "type": "number",
-            "label": "Cards Per Row",
+            "label": "Cards Per Row Changed",
             "defaultValue": 3,
             "rules": {
               "required": true,
