@@ -18,7 +18,7 @@
           "overridable": false
         }
       ],
-      "permalink": "rest-countries"
+      "permalink": "rest-countries-demo"
     },
     {
       "name": "Weather Forecast",
@@ -58,7 +58,7 @@
           "overridable": true
         }
       ],
-      "permalink": "weather-forecast"
+      "permalink": "weather-forecast-demo"
     }
   ]
 }
