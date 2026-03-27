@@ -146,4 +146,53 @@
     <a href="#" class="card-link">Open Inbox →</a>
   </div>
 
+  <div class="card" id="country-1"><p class="card-description">Loading...</p></div>
+  <div class="card" id="country-2"><p class="card-description">Loading...</p></div>
+  <div class="card" id="country-3"><p class="card-description">Loading...</p></div>
+  <div class="card" id="weather-wroclaw"><p class="card-description">Loading...</p></div>
+
 </div>
+
+<script src="https://static.customer-hub.northpass.com/widget-sdk/latest/index.umd.js"></script>
+<script>
+  (async function () {
+    var host = document.querySelector('gs-cc-registry-widget[data-widget-type*="card_grid"]');
+    if (!host || !host.shadowRoot) return;
+    if (host._cardGridInitialized) return;
+    host._cardGridInitialized = true;
+
+    var root = host.shadowRoot;
+    var sdk = new WidgetServiceSDK();
+
+    function fillCard(id, icon, title, description) {
+      var card = root.querySelector("#" + id);
+      card.textContent = "";
+      var iconEl = document.createElement("div");
+      iconEl.className = "card-icon";
+      iconEl.textContent = icon;
+      var titleEl = document.createElement("h3");
+      titleEl.className = "card-title";
+      titleEl.textContent = title;
+      var descEl = document.createElement("p");
+      descEl.className = "card-description";
+      descEl.textContent = description;
+      card.appendChild(iconEl);
+      card.appendChild(titleEl);
+      card.appendChild(descEl);
+    }
+
+    var countries = await sdk.connectors.execute({ permalink: "rest-countries", method: "GET" });
+    countries.sort(function (left, right) { return right.population - left.population; })
+      .slice(0, 3)
+      .forEach(function (country, index) {
+        fillCard("country-" + (index + 1), "🌍", country.name.common, "Capital: " + country.capital[0]);
+      });
+
+    var weather = await sdk.connectors.execute({
+      permalink: "weather-forecast", method: "GET",
+      queryParams: { latitude: "51.10", longitude: "17.03" }
+    });
+    var forecast = weather.daily;
+    fillCard("weather-wroclaw", "🌤️", "Wroclaw, Poland", forecast.temperature_2m_max[0] + "°C / " + forecast.temperature_2m_min[0] + "°C");
+  })();
+</script>

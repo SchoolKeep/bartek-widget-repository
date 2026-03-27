@@ -29,14 +29,17 @@ The widget registry system uses individual configuration files for each widget, 
 ```
 widgets-repo-template/
 ├── bin/
-│   └── build-registry.sh    # Script to build widget_registry.json (defaults at top of file)
-├── widget_registry.json     # Generated registry (DO NOT EDIT MANUALLY)
+│   └── build-registry.sh       # Script to build widget_registry.json and connectors_registry.json
+├── widget_registry.json        # Generated widget registry (DO NOT EDIT MANUALLY)
+├── connectors_registry.json    # Generated connector registry (DO NOT EDIT MANUALLY)
 └── widgets/
-    ├── WIDGET_SETUP.md      # This documentation file
+    ├── WIDGET_SETUP.md         # This documentation file
+    ├── CONNECTOR_SETUP.md      # Connector documentation
     ├── my_widget/
-    │   ├── widget.json      # Widget-specific configuration
+    │   ├── widget.json         # Widget-specific configuration
+    │   ├── connectors.json     # Connector definitions (optional)
     │   └── dist/
-    │       └── content.html # Widget HTML entry (service pulls only dist/)
+    │       └── content.html    # Widget HTML entry (service pulls only dist/)
     └── another_widget/
         ├── widget.json
         └── dist/
@@ -483,6 +486,32 @@ Ensure your `widget.json` includes all required fields:
 8. **Use HTML fragments only** - Do not include `<html>`, `<head>`, or `<body>` tags, as widgets are embedded into existing pages
 9. **Use absolute URLs for external resources** - Relative file references won't work, but publicly available endpoints (CDNs, fonts, etc.) are accessible
 
+## Connectors
+
+Widgets can define connectors -- secure HTTP proxy definitions that allow the widget to call external APIs without exposing credentials. To add connectors to a widget, create a `connectors.json` file in the widget directory alongside `widget.json`:
+
+```
+widgets/my_widget/
+├── widget.json
+├── connectors.json    # Connector definitions
+└── dist/
+    └── content.html
+```
+
+The `connectors.json` file contains a `connectors` array, where each entry defines a single HTTP proxy endpoint with a name, URL, method, headers, authentication, and a permalink for calling it from widget code.
+
+The build script validates all connectors and merges them into `connectors_registry.json`. Widget code calls connectors at runtime using the SDK:
+
+```javascript
+const sdk = new window.WidgetServiceSDK();
+const data = await sdk.connectors.execute({
+  permalink: "my-connector",
+  method: "GET"
+});
+```
+
+For complete connector documentation, including schema reference, authentication types, Jinja2 templates, and best practices, see [CONNECTOR_SETUP.md](CONNECTOR_SETUP.md).
+
 ## Examples
 
 See the existing widgets in the `widgets/` directory for examples:
@@ -500,5 +529,6 @@ See the existing widgets in the `widgets/` directory for examples:
   - Demonstrates the `configuration` and `defaultConfig` fields
   - Shows how to use template variables (`{{ variable_name }}`) in the entry file (dist/content.html)
   - Includes multiple configuration types: number, color, and select
+  - Includes example connectors (`connectors.json`) using REST Countries and Open-Meteo public APIs
   - Well-commented HTML showing exactly how each config variable is used
 
