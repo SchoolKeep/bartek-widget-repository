@@ -1,7 +1,7 @@
 {
   "connectors": [
     {
-      "name": "REST Countries",
+      "name": "REST Countries DEMO",
       "url": "https://restcountries.com/v3.1/all",
       "method": "GET",
       "headers": [
@@ -21,7 +21,7 @@
       "permalink": "rest-countries-demo"
     },
     {
-      "name": "Weather Forecast",
+      "name": "Weather Forecast DEMO",
       "url": "https://api.open-meteo.com/v1/forecast",
       "method": "GET",
       "headers": [
