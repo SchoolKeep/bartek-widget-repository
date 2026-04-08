@@ -15,16 +15,7 @@
           "maxLength": 100
         }
       },
-      {
-        "name": "portal_url",
-        "type": "text",
-        "label": "Fider Portal URL",
-        "defaultValue": "https://bartek-gainsigh.fider.io",
-        "rules": {
-          "required": true
-        }
-      },
-      {
+{
         "name": "view_filter",
         "type": "select",
         "label": "Default View",
@@ -61,8 +52,7 @@
   },
   "defaultConfig": {
     "widget_title": "Product Ideas",
-    "portal_url": "https://bartek-gainsigh.fider.io",
-    "view_filter": "most-wanted",
+"view_filter": "most-wanted",
     "max_ideas": 10,
     "accent_color": "#6366f1"
   },
