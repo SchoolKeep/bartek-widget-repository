@@ -29,6 +29,7 @@
         { "key": "Content-Type", "value": "application/json", "overridable": false },
         { "key": "Accept", "value": "application/json", "overridable": false }
       ],
+      "request_body": "{{ body_text }}",
       "authentication": {
         "type": "apikey",
         "config": {

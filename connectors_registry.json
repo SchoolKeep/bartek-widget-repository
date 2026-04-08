@@ -109,6 +109,7 @@
           "overridable": false
         }
       ],
+      "request_body": "{{ body_text }}",
       "authentication": {
         "type": "apikey",
         "config": {
