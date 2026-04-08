@@ -1,4 +1,4 @@
-(function () {
+function initFiderWidget() {
   var host = document.querySelector('gs-cc-registry-widget[data-widget-type*="fider_ideas"]');
   if (!host || !host.shadowRoot) return;
   if (host._fiderInit) return;
@@ -149,4 +149,10 @@
   });
 
   loadIdeas();
-})();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFiderWidget);
+} else {
+  initFiderWidget();
+}
