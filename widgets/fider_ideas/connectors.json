@@ -1,0 +1,43 @@
+{
+  "connectors": [
+    {
+      "name": "Fider List Posts",
+      "url": "https://bartek-gainsigh.fider.io/api/v1/posts",
+      "method": "GET",
+      "headers": [
+        { "key": "Accept", "value": "application/json", "overridable": false }
+      ],
+      "query_parameters": [
+        { "key": "view", "value": "most-wanted", "overridable": true },
+        { "key": "limit", "value": "10", "overridable": true }
+      ],
+      "authentication": {
+        "type": "apikey",
+        "config": {
+          "key": "Authorization",
+          "value": "Bearer {{ get_secret('fider_api_key') }}",
+          "in": "header"
+        }
+      },
+      "permalink": "fider-list-posts"
+    },
+    {
+      "name": "Fider Create Post",
+      "url": "https://bartek-gainsigh.fider.io/api/v1/posts",
+      "method": "POST",
+      "headers": [
+        { "key": "Content-Type", "value": "application/json", "overridable": false },
+        { "key": "Accept", "value": "application/json", "overridable": false }
+      ],
+      "authentication": {
+        "type": "apikey",
+        "config": {
+          "key": "Authorization",
+          "value": "Bearer {{ get_secret('fider_api_key') }}",
+          "in": "header"
+        }
+      },
+      "permalink": "fider-create-post"
+    }
+  ]
+}

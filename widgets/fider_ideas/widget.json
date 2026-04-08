@@ -1,0 +1,73 @@
+{
+  "version": "1.0.0",
+  "title": "Product Ideas",
+  "description": "Source and submit product ideas from your Fider feedback portal",
+  "category": "Feedback",
+  "configuration": {
+    "properties": [
+      {
+        "name": "widget_title",
+        "type": "text",
+        "label": "Widget Title",
+        "defaultValue": "Product Ideas",
+        "rules": {
+          "required": true,
+          "maxLength": 100
+        }
+      },
+      {
+        "name": "portal_url",
+        "type": "text",
+        "label": "Fider Portal URL",
+        "defaultValue": "https://bartek-gainsigh.fider.io",
+        "rules": {
+          "required": true
+        }
+      },
+      {
+        "name": "view_filter",
+        "type": "select",
+        "label": "Default View",
+        "defaultValue": "most-wanted",
+        "options": [
+          { "value": "most-wanted", "label": "Most Wanted" },
+          { "value": "recent", "label": "Recent" },
+          { "value": "trending", "label": "Trending" },
+          { "value": "most-discussed", "label": "Most Discussed" },
+          { "value": "planned", "label": "Planned" },
+          { "value": "started", "label": "In Progress" },
+          { "value": "completed", "label": "Completed" },
+          { "value": "all", "label": "All" }
+        ]
+      },
+      {
+        "name": "max_ideas",
+        "type": "number",
+        "label": "Max Ideas to Show",
+        "defaultValue": 10,
+        "rules": {
+          "required": true,
+          "minimum": 1,
+          "maximum": 100
+        }
+      },
+      {
+        "name": "accent_color",
+        "type": "color",
+        "label": "Accent Color",
+        "defaultValue": "#6366f1"
+      }
+    ]
+  },
+  "defaultConfig": {
+    "widget_title": "Product Ideas",
+    "portal_url": "https://bartek-gainsigh.fider.io",
+    "view_filter": "most-wanted",
+    "max_ideas": 10,
+    "accent_color": "#6366f1"
+  },
+  "source": {
+    "path": "dist",
+    "entry": "content.html"
+  }
+}
