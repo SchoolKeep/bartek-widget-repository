@@ -1,4 +1,9 @@
 function initFiderWidget() {
+  if (typeof WidgetServiceSDK === 'undefined') {
+    setTimeout(initFiderWidget, 50);
+    return;
+  }
+
   var host = document.querySelector('gs-cc-registry-widget[data-widget-type*="fider_ideas"]');
   if (!host || !host.shadowRoot) return;
   if (host._fiderInit) return;
@@ -6,6 +11,11 @@ function initFiderWidget() {
 
   var root = host.shadowRoot;
   var sdk = new WidgetServiceSDK();
+
+  sdk.whenReady().then(function () { run(sdk, root); });
+}
+
+function run(sdk, root) {
   var portalUrl = 'https://bartek-gainsigh.fider.io';
 
   var STATUS_MAP = {
@@ -149,7 +159,7 @@ function initFiderWidget() {
   });
 
   loadIdeas();
-}
+} // end run()
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initFiderWidget);
