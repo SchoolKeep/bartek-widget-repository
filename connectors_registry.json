@@ -62,7 +62,7 @@
     },
     {
       "name": "Fider List Posts",
-      "url": "https://bartek-gainsight.fider.io/api/v1/posts",
+      "url": "https://bartek-gainsigh.fider.io/api/v1/posts",
       "method": "GET",
       "headers": [
         {
@@ -95,7 +95,7 @@
     },
     {
       "name": "Fider Create Post",
-      "url": "https://bartek-gainsight.fider.io/api/v1/posts",
+      "url": "https://bartek-gainsigh.fider.io/api/v1/posts",
       "method": "POST",
       "headers": [
         {

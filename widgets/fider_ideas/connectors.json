@@ -2,7 +2,7 @@
   "connectors": [
     {
       "name": "Fider List Posts",
-      "url": "https://bartek-gainsight.fider.io/api/v1/posts",
+      "url": "https://bartek-gainsigh.fider.io/api/v1/posts",
       "method": "GET",
       "headers": [
         { "key": "Accept", "value": "application/json", "overridable": false }
@@ -23,7 +23,7 @@
     },
     {
       "name": "Fider Create Post",
-      "url": "https://bartek-gainsight.fider.io/api/v1/posts",
+      "url": "https://bartek-gainsigh.fider.io/api/v1/posts",
       "method": "POST",
       "headers": [
         { "key": "Content-Type", "value": "application/json", "overridable": false },
