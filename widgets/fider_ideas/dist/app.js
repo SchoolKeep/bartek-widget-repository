@@ -1,4 +1,4 @@
-var PORTAL_URL = 'https://bartek-gainsigh.fider.io';
+var PORTAL_URL = 'https://bartek-gainsight.fider.io';
 
 var STATUS_MAP = {
   open: 'open',
