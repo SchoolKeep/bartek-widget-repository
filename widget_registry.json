@@ -398,6 +398,6 @@
       "name": "hello_logger",
       "description": "Test script that logs page load timing to the console",
       "path": "./scripts/hello_logger/script.js"
-    }
+    },
   ]
 }
