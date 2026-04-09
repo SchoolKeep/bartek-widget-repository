@@ -132,7 +132,7 @@ export async function init(sdk) {
       await serviceSDK.connectors.execute({
         permalink: 'fider-create-post',
         method: 'POST',
-        body: JSON.stringify({ title: title, description: description })
+        payload: { title: title, description: description }
       });
       closeModal();
       showToast('Idea submitted successfully!');
