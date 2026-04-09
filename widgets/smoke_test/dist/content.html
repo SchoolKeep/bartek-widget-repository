@@ -69,6 +69,11 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  .hw-timestamp {
+    font-size: 0.75rem;
+    margin-top: 12px;
+  }
 </style>
 
 <div class="hw-container">
@@ -77,6 +82,7 @@
     <div class="hw-underline"></div>
     <p class="hw-status" id="connector-status">Connector not tested yet</p>
     <button class="hw-btn" id="test-btn">Test Connector</button>
+    <p class="hw-status hw-timestamp" id="timestamp"></p>
   </div>
 </div>
 
@@ -86,6 +92,8 @@
   var sdk = new window.WidgetServiceSDK();
   var statusEl = sdk.$('#connector-status');
   var btn = sdk.$('#test-btn');
+  var tsEl = sdk.$('#timestamp');
+  tsEl.textContent = 'Rendered at ' + new Date().toLocaleTimeString();
 
   btn.addEventListener('click', function () {
     btn.disabled = true;
