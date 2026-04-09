@@ -14,7 +14,7 @@
         "type": "text",
         "label": "Greeting text",
         "description": "Main heading displayed in the widget",
-        "defaultValue": "Hello, World!",
+        "defaultValue": "Smoke Test",
         "rules": { "required": true, "maxLength": 80 }
       },
       {
@@ -27,7 +27,7 @@
     ]
   },
   "defaultConfig": {
-    "greeting": "Hello, World!",
+    "greeting": "Smoke Test",
     "accent_color": "#3b82f6"
   }
 }
