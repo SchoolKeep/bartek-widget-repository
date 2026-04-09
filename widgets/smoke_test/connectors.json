@@ -1,0 +1,19 @@
+{
+  "connectors": [
+    {
+      "name": "Hello World Echo",
+      "url": "https://httpbin.org/get",
+      "method": "GET",
+      "headers": [
+        { "key": "Accept", "value": "application/json", "overridable": false }
+      ],
+      "query_parameters": [
+        { "key": "greeting", "value": "hello", "overridable": true }
+      ],
+      "authentication": {
+        "type": "none"
+      },
+      "permalink": "hello-world-echo"
+    }
+  ]
+}

@@ -288,9 +288,71 @@
         "entry": "index.html"
       },
       "imageSrc": "widgets/react_widget/thumbnail.png"
+    },
+    {
+      "category": "Test",
+      "configuration": {
+        "properties": [
+          {
+            "name": "greeting",
+            "type": "text",
+            "label": "Greeting text",
+            "description": "Main heading displayed in the widget",
+            "defaultValue": "Hello, World!",
+            "rules": {
+              "required": true,
+              "maxLength": 80
+            }
+          },
+          {
+            "name": "accent_color",
+            "type": "color",
+            "label": "Accent color",
+            "description": "Color used for the heading underline",
+            "defaultValue": "#3b82f6"
+          }
+        ]
+      },
+      "containers": [
+        "Full width"
+      ],
+      "defaultConfig": {
+        "greeting": "Hello, World!",
+        "accent_color": "#3b82f6"
+      },
+      "description": "Verifies the extension pipeline works end-to-end: widget rendering, config, and connector calls",
+      "settings": {
+        "configurable": true,
+        "editable": true,
+        "removable": true,
+        "shared": false,
+        "movable": false
+      },
+      "title": "Smoke Test",
+      "version": "1.0.0",
+      "widgetsLibrary": true,
+      "type": "smoke_test",
+      "source": {
+        "path": "widgets/smoke_test/dist",
+        "entry": "content.html"
+      }
     }
   ],
   "stylesheets": [
+    {
+      "rules": [
+        {
+          "field": "pageType",
+          "operator": "in",
+          "value": [
+            "global"
+          ]
+        }
+      ],
+      "name": "hello_styles",
+      "description": "Test stylesheet with a utility class for highlighted text",
+      "path": "./stylesheets/hello_styles/style.css"
+    },
     {
       "rules": [
         {
@@ -321,6 +383,21 @@
       "name": "analytics",
       "description": "Tracks widget impressions and interactions",
       "path": "./scripts/analytics/script.js"
+    },
+    {
+      "rules": [
+        {
+          "field": "pageType",
+          "operator": "in",
+          "value": [
+            "global"
+          ]
+        }
+      ],
+      "placement": "head",
+      "name": "hello_logger",
+      "description": "Test script that logs page load timing to the console",
+      "path": "./scripts/hello_logger/script.js"
     }
   ]
 }

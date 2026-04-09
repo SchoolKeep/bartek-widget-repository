@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0",
+  "title": "Smoke Test",
+  "description": "Verifies the extension pipeline works end-to-end: widget rendering, config, and connector calls",
+  "category": "Test",
+  "source": {
+    "path": "dist",
+    "entry": "content.html"
+  },
+  "configuration": {
+    "properties": [
+      {
+        "name": "greeting",
+        "type": "text",
+        "label": "Greeting text",
+        "description": "Main heading displayed in the widget",
+        "defaultValue": "Hello, World!",
+        "rules": { "required": true, "maxLength": 80 }
+      },
+      {
+        "name": "accent_color",
+        "type": "color",
+        "label": "Accent color",
+        "description": "Color used for the heading underline",
+        "defaultValue": "#3b82f6"
+      }
+    ]
+  },
+  "defaultConfig": {
+    "greeting": "Hello, World!",
+    "accent_color": "#3b82f6"
+  }
+}
