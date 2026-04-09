@@ -1,0 +1,112 @@
+<style>
+  .hw-container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 24px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .hw-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    text-align: center;
+  }
+
+  .hw-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.02em;
+  }
+
+  .hw-underline {
+    width: 48px;
+    height: 3px;
+    background: {{ accent_color }};
+    border-radius: 2px;
+    margin: 0 auto 16px auto;
+  }
+
+  .hw-status {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+  }
+
+  .hw-status--ok {
+    color: #16a34a;
+  }
+
+  .hw-status--error {
+    color: #dc2626;
+  }
+
+  .hw-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding: 8px 16px;
+    background: {{ accent_color }};
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+
+  .hw-btn:hover {
+    opacity: 0.85;
+  }
+
+  .hw-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+</style>
+
+<div class="hw-container">
+  <div class="hw-card">
+    <h2 class="hw-heading">{{ greeting }}</h2>
+    <div class="hw-underline"></div>
+    <p class="hw-status" id="connector-status">Connector not tested yet</p>
+    <button class="hw-btn" id="test-btn">Test Connector</button>
+  </div>
+</div>
+
+<script src="https://static.customer-hub.northpass.com/widget-sdk/latest/index.umd.js"></script>
+<script>
+(function () {
+  var sdk = new window.WidgetServiceSDK();
+  var statusEl = sdk.$('#connector-status');
+  var btn = sdk.$('#test-btn');
+
+  btn.addEventListener('click', function () {
+    btn.disabled = true;
+    btn.textContent = 'Testing...';
+    statusEl.className = 'hw-status';
+    statusEl.textContent = 'Calling connector...';
+
+    sdk.connectors.execute({
+      permalink: 'hello-world-echo',
+      method: 'GET'
+    }).then(function (data) {
+      statusEl.className = 'hw-status hw-status--ok';
+      statusEl.textContent = 'Connector works! Response received.';
+      btn.textContent = 'Test Connector';
+      btn.disabled = false;
+    }).catch(function (err) {
+      statusEl.className = 'hw-status hw-status--error';
+      statusEl.textContent = 'Error: ' + (err.message || 'Unknown error');
+      btn.textContent = 'Test Connector';
+      btn.disabled = false;
+    });
+  });
+})();
+</script>
