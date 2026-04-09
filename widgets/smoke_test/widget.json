@@ -5,7 +5,7 @@
   "category": "Test",
   "source": {
     "path": "dist",
-    "entry": "content.html"
+    "entry": "../content.html"
   },
   "configuration": {
     "properties": [
