@@ -95,7 +95,7 @@
     },
     {
       "name": "Fider Create Post",
-      "url": "https://bartek-gainsigh.fider.io/api/v1/posts",
+      "url": "https://httpbin.org/post",
       "method": "POST",
       "headers": [
         {
