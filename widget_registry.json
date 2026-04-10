@@ -1,6 +1,54 @@
 {
   "widgets": [
     {
+      "category": "Bartek",
+      "configuration": {
+        "properties": [
+          {
+            "name": "heading",
+            "type": "text",
+            "label": "Heading",
+            "description": "Main heading displayed in the widget",
+            "defaultValue": "Hello from Bartek!",
+            "rules": {
+              "required": true,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "accent_color",
+            "type": "color",
+            "label": "Accent Color",
+            "description": "Color used for decorative elements",
+            "defaultValue": "#6366f1"
+          }
+        ]
+      },
+      "containers": [
+        "Full width"
+      ],
+      "defaultConfig": {
+        "heading": "Hello from Bartek!",
+        "accent_color": "#6366f1"
+      },
+      "description": "A simple test widget in the Bartek category",
+      "settings": {
+        "configurable": true,
+        "editable": true,
+        "removable": true,
+        "shared": false,
+        "movable": false
+      },
+      "title": "Bartek Test",
+      "version": "1.0.0",
+      "widgetsLibrary": true,
+      "type": "bartek_test",
+      "source": {
+        "path": "widgets/bartek_test/dist",
+        "entry": "content.html"
+      }
+    },
+    {
       "category": "Demo",
       "configuration": {
         "properties": [

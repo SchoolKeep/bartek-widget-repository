@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0",
+  "title": "Bartek Test",
+  "description": "A simple test widget in the Bartek category",
+  "category": "Bartek",
+  "source": {
+    "path": "dist",
+    "entry": "content.html"
+  },
+  "configuration": {
+    "properties": [
+      {
+        "name": "heading",
+        "type": "text",
+        "label": "Heading",
+        "description": "Main heading displayed in the widget",
+        "defaultValue": "Hello from Bartek!",
+        "rules": { "required": true, "maxLength": 100 }
+      },
+      {
+        "name": "accent_color",
+        "type": "color",
+        "label": "Accent Color",
+        "description": "Color used for decorative elements",
+        "defaultValue": "#6366f1"
+      }
+    ]
+  },
+  "defaultConfig": {
+    "heading": "Hello from Bartek!",
+    "accent_color": "#6366f1"
+  }
+}
