@@ -1,27 +1,17 @@
 #!/bin/bash
 
 # build-registry.sh
-# Generates widget_registry.json by deep-merging the default widget template
-# with each widgets/<name>/widget.json, resolving paths from widget-dir-relative
-# to repository-root-relative. Each widget.json must include either a "source"
-# block (repo-hosted) or a "content" block (external).
+# Generates extensions_registry.json from each widgets/<name>/widget.json, resolving
+# paths from widget-dir-relative to repository-root-relative. Each widget.json
+# must include either a "source" block (repo-hosted) or a "content" block
+# (external). The build script does NOT fill in defaults — the widget-service
+# backend applies defaults for version, description, containers, widgetsLibrary,
+# settings.*, imageName, and content.method when fields are omitted.
 #
 # Also scans each widget directory for connectors.json, validates connector
 # definitions, and generates connectors_registry.json.
 
 set -e
-
-# -----------------------------------------------------------------------------
-# Defaults (widget template + content-block). Edit here; no external config file.
-# -----------------------------------------------------------------------------
-
-DEFAULT_CONTAINERS='["Full width"]'
-DEFAULT_WIDGETS_LIBRARY="true"
-DEFAULT_SETTINGS='{"configurable":true,"editable":true,"removable":true,"shared":false,"movable":false}'
-
-CONTENT_DEFAULT_METHOD="GET"
-CONTENT_DEFAULT_REQUIRES_AUTH="false"
-CONTENT_DEFAULT_CACHE_STRATEGY="no-cache"
 
 STYLESHEET_DEFAULT_CONTENT_FILE="style.css"
 STYLESHEET_DEFAULT_RULES='[{"field":"pageType","operator":"in","value":["global"]}]'
@@ -29,8 +19,6 @@ STYLESHEET_DEFAULT_RULES='[{"field":"pageType","operator":"in","value":["global"
 SCRIPT_DEFAULT_CONTENT_FILE="script.js"
 SCRIPT_DEFAULT_RULES='[{"field":"pageType","operator":"in","value":["global"]}]'
 SCRIPT_DEFAULT_PLACEMENT="head"
-
-# -----------------------------------------------------------------------------
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -40,8 +28,13 @@ NC='\033[0m'
 WIDGETS_DIR="widgets"
 STYLESHEETS_DIR="stylesheets"
 SCRIPTS_DIR="scripts"
-OUTPUT_FILE="widget_registry.json"
+OUTPUT_FILE="extensions_registry.json"
 CONNECTORS_OUTPUT_FILE="connectors_registry.json"
+
+# Default category applied to widgets whose widget.json omits "category".
+# Override: DEFAULT_WIDGET_CATEGORY=Foo ./bin/build-registry.sh
+# Strict mode: DEFAULT_WIDGET_CATEGORY= ./bin/build-registry.sh
+DEFAULT_WIDGET_CATEGORY="${DEFAULT_WIDGET_CATEGORY-Generic}"
 
 DRY_RUN=false
 VALIDATE_ONLY=false
@@ -61,8 +54,11 @@ while [[ $# -gt 0 ]]; do
       echo ""
       echo "Options:"
       echo "  --dry-run    Preview the output without writing to file"
-      echo "  --validate   Validate existing widget_registry.json and connectors_registry.json"
+      echo "  --validate   Validate existing extensions_registry.json and connectors_registry.json"
       echo "  --help       Show this help message"
+      echo ""
+      echo "Environment:"
+      echo "  DEFAULT_WIDGET_CATEGORY   Category applied when widget.json omits 'category' (default: Generic; set empty to require explicit category)"
       exit 0
       ;;
     *)
@@ -182,13 +178,6 @@ if [ ! -d "$WIDGETS_DIR" ]; then
   exit 1
 fi
 
-DEFAULT_BASE=$(jq -n -c \
-  --argjson containers "$DEFAULT_CONTAINERS" \
-  --argjson widgetsLibrary "$DEFAULT_WIDGETS_LIBRARY" \
-  --argjson settings "$DEFAULT_SETTINGS" \
-  '{containers: $containers, widgetsLibrary: $widgetsLibrary, settings: $settings}')
-success "Using built-in defaults"
-
 normalize_widget_path() {
   local raw="$1"
   local name="$2"
@@ -238,22 +227,40 @@ for widget_dir in "$WIDGETS_DIR"/*; do
     continue
   fi
 
-  version=$(jq -r '.version // empty' "$widget_config")
   title=$(jq -r '.title // empty' "$widget_config")
-  description=$(jq -r '.description // empty' "$widget_config")
+  category=$(jq -r '.category // empty' "$widget_config")
 
-  if [ -z "$version" ]; then
-    error "  Missing required field: version"
-    ((error_count++))
-    continue
-  fi
   if [ -z "$title" ]; then
     error "  Missing required field: title"
     ((error_count++))
     continue
   fi
-  if [ -z "$description" ]; then
-    error "  Missing required field: description"
+  if [ -z "$category" ]; then
+    if [ -n "$DEFAULT_WIDGET_CATEGORY" ]; then
+      warning "  widget.json missing 'category'; applying default: $DEFAULT_WIDGET_CATEGORY"
+      category="$DEFAULT_WIDGET_CATEGORY"
+    else
+      error "  Missing required field: category (widget-service rejects widgets without a category; set DEFAULT_WIDGET_CATEGORY or add 'category' to widget.json)"
+      ((error_count++))
+      continue
+    fi
+  fi
+
+  # configuration.properties must be an array of field definitions (widget-service rejects non-array shapes).
+  # Common mistake: writing it as a JSON-Schema-style object keyed by field name.
+  if jq -e '.configuration | has("properties")' "$widget_config" >/dev/null 2>&1; then
+    properties_type=$(jq -r '.configuration.properties | type' "$widget_config")
+    if [ "$properties_type" != "array" ]; then
+      error "  configuration.properties must be an array of field definitions, got: $properties_type"
+      if [ "$properties_type" = "object" ]; then
+        error "    Hint: use [ { \"name\": \"title\", \"type\": \"text\", \"label\": \"Title\" }, ... ]"
+        error "    instead of JSON-Schema style { \"title\": { ... } }."
+      fi
+      ((error_count++))
+      continue
+    fi
+  elif jq -e '.configuration' "$widget_config" >/dev/null 2>&1; then
+    error "  configuration block is present but missing required 'properties' array"
     ((error_count++))
     continue
   fi
@@ -344,72 +351,29 @@ for widget_dir in "$WIDGETS_DIR"/*; do
       continue
     fi
 
-    widget=$(jq -n \
-      --argjson default_base "$DEFAULT_BASE" \
-      --slurpfile widget "$widget_config" \
+    widget=$(jq \
       --arg type "$widget_name" \
+      --arg category "$category" \
       --arg repo_path "$repo_path" \
       --arg entry "$src_entry" \
       --arg image_src_resolved "$image_src_resolved" \
       '
-      def deep_merge(a; b):
-        if b == null then a
-        elif (a | type) != "object" or (b | type) != "object" then b
-        else (a | keys) + (b | keys) | unique
-        | map(. as $k | { ($k): (deep_merge(a[$k]; b[$k])) })
-        | add
-        end;
-      ($widget[0] | del(.source, .content, .imageSrc)) as $w
-      | deep_merge($default_base; $w)
-      | . + { "type": $type, "source": { "path": $repo_path, "entry": $entry } }
+      . + { "type": $type, "category": $category, "source": { "path": $repo_path, "entry": $entry } }
       | if $image_src_resolved != "" then . + {"imageSrc": $image_src_resolved} | del(.imageName) else . end
-      | del(.configuration | nulls) | del(.defaultConfig | nulls)
-      ')
+      ' "$widget_config")
   else
-    content_endpoint=$(jq -r '.content.endpoint' "$widget_config")
-    content_method=$(jq -r '.content.method // empty' "$widget_config")
-    [ -z "$content_method" ] || [ "$content_method" = "null" ] && content_method="$CONTENT_DEFAULT_METHOD"
-    content_auth=$(jq -c '.content.requiresAuthentication // empty' "$widget_config")
-    [ -z "$content_auth" ] || [ "$content_auth" = "null" ] && content_auth="$CONTENT_DEFAULT_REQUIRES_AUTH"
-    content_cache=$(jq -r '.content.cacheStrategy // empty' "$widget_config")
-    [ -z "$content_cache" ] || [ "$content_cache" = "null" ] && content_cache="$CONTENT_DEFAULT_CACHE_STRATEGY"
-
-    requires_auth_json="$content_auth"
-    widget=$(jq -n \
-      --argjson default_base "$DEFAULT_BASE" \
-      --slurpfile widget "$widget_config" \
+    widget=$(jq \
       --arg type "$widget_name" \
-      --arg endpoint "$content_endpoint" \
-      --arg method "$content_method" \
-      --arg requires_auth_str "$requires_auth_json" \
-      --arg cacheStrategy "$content_cache" \
+      --arg category "$category" \
       --arg image_src_resolved "$image_src_resolved" \
       '
-      def deep_merge(a; b):
-        if b == null then a
-        elif (a | type) != "object" or (b | type) != "object" then b
-        else (a | keys) + (b | keys) | unique
-        | map(. as $k | { ($k): (deep_merge(a[$k]; b[$k])) })
-        | add
-        end;
-      ($widget[0] | del(.source, .content, .imageSrc)) as $w
-      | deep_merge($default_base; $w)
-      | . + {
-          "type": $type,
-          "content": {
-            "endpoint": $endpoint,
-            "method": $method,
-            "requiresAuthentication": ($requires_auth_str | fromjson),
-            "cacheStrategy": $cacheStrategy
-          }
-        }
+      . + { "type": $type, "category": $category }
       | if $image_src_resolved != "" then . + {"imageSrc": $image_src_resolved} | del(.imageName) else . end
-      | del(.configuration | nulls) | del(.defaultConfig | nulls)
-      ')
+      ' "$widget_config")
   fi
 
   WIDGETS_JSON=$(echo "$WIDGETS_JSON" | jq --argjson widget "$widget" '. + [$widget]')
-  success "  Processed: $title (v$version)"
+  success "  Processed: $title"
   ((widget_count++))
 done
 
