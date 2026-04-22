@@ -1,0 +1,15 @@
+<div id="emoji-probe" style="font-family:system-ui;padding:16px;">
+  <h2 id="heading">Hello 🌎</h2>
+  <p id="icon">🚀</p>
+  <script>
+    window.init = function (sdk) {
+      const { greeting, icon, zalgo, accent_color } = sdk.getProps();
+      document.getElementById("heading").textContent = greeting;
+      document.getElementById("icon").textContent = icon;
+      document.getElementById("emoji-probe").style.borderTop = `4px solid ${accent_color}`;
+      const z = document.createElement("p");
+      z.textContent = zalgo;
+      document.getElementById("emoji-probe").appendChild(z);
+    };
+  </script>
+</div>

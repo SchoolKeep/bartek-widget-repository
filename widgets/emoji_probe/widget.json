@@ -1,0 +1,48 @@
+{
+  "version": "1.0.0",
+  "title": "Emoji Probe 🎉",
+  "description": "Probes whether emoji and unicode survive the publish pipeline in every user-facing text field 🚀",
+  "category": "Test",
+  "source": {
+    "path": "dist",
+    "entry": "content.html"
+  },
+  "configuration": {
+    "properties": [
+      {
+        "name": "greeting",
+        "type": "text",
+        "label": "Greeting 👋",
+        "description": "Rendered at the top of the widget — should accept emoji",
+        "defaultValue": "Hello, world! 🌎",
+        "rules": { "required": true, "maxLength": 80 }
+      },
+      {
+        "name": "icon",
+        "type": "text",
+        "label": "Icon",
+        "description": "Single-emoji default",
+        "defaultValue": "🚀"
+      },
+      {
+        "name": "zalgo",
+        "type": "text",
+        "label": "Unicode stress",
+        "description": "Combining marks and non-BMP chars",
+        "defaultValue": "H̷e̴l̸l̶o̵ 𝕌𝕟𝕚𝕔𝕠𝕕𝕖"
+      },
+      {
+        "name": "accent_color",
+        "type": "color",
+        "label": "Accent color",
+        "defaultValue": "#6366f1"
+      }
+    ]
+  },
+  "defaultConfig": {
+    "greeting": "Hello, world! 🌎",
+    "icon": "🚀",
+    "zalgo": "H̷e̴l̸l̶o̵ 𝕌𝕟𝕚𝕔𝕠𝕕𝕖",
+    "accent_color": "#6366f1"
+  }
+}
