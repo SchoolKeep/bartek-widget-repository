@@ -1,0 +1,78 @@
+<style>
+  .mc-wrap {
+    font-family: 'SF Mono', 'Menlo', 'Monaco', monospace;
+    padding: 32px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    background: #020617;
+    border-radius: 14px;
+  }
+
+  .mc-tile {
+    background: {{ tile_background }};
+    color: #f8fafc;
+    min-width: 72px;
+    padding: 18px 12px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 6px 18px rgba(0,0,0,0.3);
+  }
+
+  .mc-value {
+    font-size: 2.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .mc-label {
+    margin-top: 8px;
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #94a3b8;
+  }
+
+  .mc-done {
+    font-size: 1rem;
+    color: #4ade80;
+    padding: 24px;
+  }
+</style>
+
+<div class="mc-wrap" id="mc-root" data-target="{{ target_iso }}" data-show-seconds="{{ show_seconds }}" data-tile-count="{{ tile_count }}"></div>
+
+<script type="module">
+  const root = document.currentScript.previousElementSibling;
+  const target = new Date(root.dataset.target).getTime();
+  const showSeconds = root.dataset.showSeconds === 'true';
+  const tileCount = Number(root.dataset.tileCount) || 4;
+
+  const units = [
+    { key: 'days',    label: 'Days',    ms: 86_400_000 },
+    { key: 'hours',   label: 'Hours',   ms: 3_600_000  },
+    { key: 'minutes', label: 'Minutes', ms: 60_000     },
+    { key: 'seconds', label: 'Seconds', ms: 1_000      },
+  ].filter(u => showSeconds || u.key !== 'seconds').slice(0, tileCount);
+
+  function tick() {
+    const diff = target - Date.now();
+    if (diff <= 0) {
+      root.innerHTML = '<div class="mc-done">Countdown reached ✓</div>';
+      return;
+    }
+    let remaining = diff;
+    const parts = units.map(u => {
+      const n = Math.floor(remaining / u.ms);
+      remaining -= n * u.ms;
+      return { label: u.label, value: String(n).padStart(2, '0') };
+    });
+    root.innerHTML = parts
+      .map(p => `<div class="mc-tile"><div class="mc-value">${p.value}</div><div class="mc-label">${p.label}</div></div>`)
+      .join('');
+  }
+
+  tick();
+  setInterval(tick, 1_000);
+</script>

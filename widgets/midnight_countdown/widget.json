@@ -1,0 +1,48 @@
+{
+  "version": "2.1.3",
+  "title": "Smoke Test",
+  "description": "Tile-based countdown to a configurable target moment — no connectors, no SDK fetches, pure client-side rendering",
+  "category": "Time & Date",
+  "source": {
+    "path": "dist",
+    "entry": "index.html"
+  },
+  "configuration": {
+    "properties": [
+      {
+        "name": "target_iso",
+        "type": "text",
+        "label": "Target timestamp (ISO 8601)",
+        "description": "When the countdown should reach zero",
+        "defaultValue": "2026-12-31T23:59:59Z",
+        "rules": { "required": true, "maxLength": 40 }
+      },
+      {
+        "name": "tile_count",
+        "type": "number",
+        "label": "Number of tiles",
+        "description": "How many animated flip tiles to render",
+        "defaultValue": 4,
+        "rules": { "required": true, "minimum": 1, "maximum": 12 }
+      },
+      {
+        "name": "show_seconds",
+        "type": "boolean",
+        "label": "Show seconds",
+        "defaultValue": true
+      },
+      {
+        "name": "tile_background",
+        "type": "color",
+        "label": "Tile background",
+        "defaultValue": "#0f172a"
+      }
+    ]
+  },
+  "defaultConfig": {
+    "target_iso": "2026-12-31T23:59:59Z",
+    "tile_count": 4,
+    "show_seconds": true,
+    "tile_background": "#0f172a"
+  }
+}
