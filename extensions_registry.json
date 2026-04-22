@@ -181,7 +181,7 @@
       "version": "2.1.3",
       "title": "Smoke Test",
       "description": "Tile-based countdown to a configurable target moment — no connectors, no SDK fetches, pure client-side rendering",
-      "category": "Time & Date",
+      "category": "Test",
       "source": {
         "path": "widgets/midnight_countdown/dist",
         "entry": "index.html"
