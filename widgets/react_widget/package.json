@@ -1,5 +1,9 @@
 {
+<<<<<<<< HEAD:widgets/react_widget/package.json
   "name": "react-widget",
+========
+  "name": "countries-react",
+>>>>>>>> upstream/main:widgets/countries-react/package.json
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -19,4 +23,8 @@
     "vite": "^6.2.0"
   },
   "packageManager": "npm@10.9.2"
+<<<<<<<< HEAD:widgets/react_widget/package.json
 }
+========
+}
+>>>>>>>> upstream/main:widgets/countries-react/package.json
